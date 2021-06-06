@@ -64,19 +64,14 @@ class FaceDetector
     public function faceDetect($file)
     {
         if (is_resource($file)) {
-
             $this->canvas = $file;
-
         } elseif (is_file($file)) {
-
-            $this->canvas = imagecreatefromjpeg($file);
-
+            $this->canvas = $this->getImageFromFile($file);
         } elseif (is_string($file)) {
-
             $this->canvas = imagecreatefromstring($file);
-            
-        } else {
+        }
 
+        if (is_null($this->canvas)) {
             throw new Exception("Can not load $file");
         }
 
@@ -352,5 +347,29 @@ class FaceDetector
             }
         }
         return true;
+    }
+
+    protected function getMimeType($file)
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file);
+        finfo_close($finfo);
+        return $mimeType;
+    }
+
+    protected function getImageFromFile($file)
+    {
+        $mimeType = $this->getMimeType($file);
+        if ($mimeType == 'image/png' && function_exists('imagecreatefrompng')) {
+            return imagecreatefrompng($file);
+        } elseif ($mimeType == 'image/jpeg' && function_exists('imagecreatefromjpeg')) {
+            return imagecreatefromjpeg($file);
+        } elseif ($mimeType == 'image/gif' && function_exists('imagecreatefromgif')) {
+            return imagecreatefromgif($file);
+        } elseif ($mimeType == 'image/webp' && function_exists('imagecreatefromwebp')) {
+            return imagecreatefromwebp($file);
+        } elseif ($mimeType == 'image/bmp' && function_exists('imagecreatefrombmp')) {
+            return imagecreatefrombmp($file);
+        }
     }
 }
