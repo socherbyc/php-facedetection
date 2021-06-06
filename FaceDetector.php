@@ -111,6 +111,9 @@ class FaceDetector
                 $stats['width'],
                 $stats['height']
             );
+            if (is_null($this->face)) {
+                return null;
+            }
 
             if ($this->face['w'] > 0) {
                 $this->face['x'] *= $ratio;
